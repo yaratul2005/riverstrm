@@ -134,6 +134,7 @@ header.scrolled {
     inset: 0;
     z-index: 2;
     background: linear-gradient(0deg, var(--bg-color) 0%, transparent 60%, rgba(0, 0, 0, 0.6) 100%);
+    pointer-events: none;
 }
 
 .hero-content {
