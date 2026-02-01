@@ -65,7 +65,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="form-group">
                 <input type="password" name="password" placeholder="Password" required>
             </div>
-            <button type="submit" class="btn" style="width: 100%;">Sign In</button>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+            
+            <div style="margin: 20px 0; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                 <hr style="flex-grow: 1; border-color: #333;"> <span style="color: #666; font-size: 0.8rem;">OR</span> <hr style="flex-grow: 1; border-color: #333;">
+            </div>
+
+            <a href="api/google_login.php" class="btn" style="background: white; color: black; width: 100%; display: flex; justify-content: center; align-items: center; gap: 10px;">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" width="20" alt="Google">
+                Continue with Google
+            </a>
+
+            <p style="margin-top: 15px; color: #888;">New here? <a href="#" onclick="toggleAuth('register')">Register now</a></p>
         </form>
 
         <!-- Register Form -->

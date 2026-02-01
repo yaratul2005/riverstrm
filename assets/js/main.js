@@ -1,41 +1,65 @@
 // assets/js/main.js
 
 document.addEventListener('DOMContentLoaded', () => {
+    // 0. Preloader
+    const preloader = document.getElementById('preloader');
+    if (preloader) {
+        window.addEventListener('load', () => {
+            preloader.style.opacity = '0';
+            setTimeout(() => preloader.remove(), 500);
+        });
+        // Fallback incase load event misfires
+        setTimeout(() => {
+            if (document.body.contains(preloader)) {
+                preloader.style.opacity = '0';
+                setTimeout(() => preloader.remove(), 500);
+            }
+        }, 3000);
+    }
+
     // 1. Header Scroll Effect
     const header = document.querySelector('header');
-    
+
     window.addEventListener('scroll', () => {
+        if (!header) return;
         if (window.scrollY > 50) {
             header.classList.add('scrolled');
         } else {
             header.classList.remove('scrolled');
         }
-
-        // Parallax for Hero
-        const heroBg = document.querySelector('.hero-bg');
-        if (heroBg) {
-            let offset = window.scrollY * 0.5;
-            heroBg.style.transform = `translateY(${offset}px)`;
-        }
     });
 
-    // 2. Comments System (AJAX)
+    // 2. Hero Slider
+    const slides = document.querySelectorAll('.hero-slide');
+    if (slides.length > 0) {
+        let currentSlide = 0;
+
+        // Initial setup
+        slides[0].classList.add('active');
+
+        setInterval(() => {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }, 6000); // Change every 6 seconds
+    }
+
+    // 3. Comments System (AJAX)
     const commentForm = document.getElementById('commentForm');
     if (commentForm) {
         commentForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(commentForm);
-            
+
             try {
                 const response = await fetch('api/comment.php', {
                     method: 'POST',
                     body: formData
                 });
-                
+
                 const result = await response.json();
-                
+
                 if (result.success) {
-                    // Prepend new comment
                     const list = document.getElementById('commentList');
                     const newComment = document.createElement('div');
                     newComment.className = 'comment-item';
@@ -58,8 +82,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error(err);
             }
         });
-
-        // Load Comments
         loadComments();
     }
 });
@@ -67,13 +89,10 @@ document.addEventListener('DOMContentLoaded', () => {
 async function loadComments() {
     const list = document.getElementById('commentList');
     if (!list) return;
-    
     const tmdbId = list.dataset.tmdbId;
-    
     try {
         const res = await fetch(`api/comment.php?tmdb_id=${tmdbId}`);
         const comments = await res.json();
-        
         list.innerHTML = '';
         comments.forEach(c => {
             const div = document.createElement('div');
@@ -87,11 +106,6 @@ async function loadComments() {
             `;
             list.appendChild(div);
         });
-        
-        if (comments.length === 0) {
-            list.innerHTML = '<p style="color:#666; margin-top:20px;">Be the first to comment!</p>';
-        }
-    } catch (err) {
-        console.error(err);
-    }
+        if (comments.length === 0) list.innerHTML = '<p style="color:#666;">Be the first to comment!</p>';
+    } catch (err) { console.error(err); }
 }

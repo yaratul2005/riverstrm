@@ -17,7 +17,12 @@ $page = isset($_GET['page']) ? $_GET['page'] : 'home';
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
-    <?php if ($page !== 'watch' && $page !== 'login'): ?>
+    <div id="preloader">
+        <div class="loader-logo">Great10</div>
+    </div>
+
+    <!-- Global Header (Always Visible) -->
+    <?php if ($page !== 'login'): ?>
     <header id="main-header">
         <a href="index.php" class="logo">Great10</a>
         <nav class="nav-links">
