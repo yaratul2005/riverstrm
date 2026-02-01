@@ -1,14 +1,14 @@
 <?php
 // search.php
+require_once 'api/tmdb.php';
 
 $query = $_GET['q'] ?? '';
 $results = [];
 
 if ($query) {
-    // Search local database
-    $stmt = $pdo->prepare("SELECT * FROM content WHERE title LIKE ? ORDER BY id DESC");
-    $stmt->execute(['%' . $query . '%']);
-    $results = $stmt->fetchAll();
+    $tmdb = new TMDB();
+    $data = $tmdb->search($query, 'multi'); // Multi search for movies & tv
+    $results = $data['results'] ?? [];
 }
 ?>
 
@@ -27,15 +27,24 @@ if ($query) {
     <section class="section">
         <div class="section-title">Results for "<?php echo htmlspecialchars($query); ?>"</div>
         <?php if (empty($results)): ?>
-            <p style="text-align: center; color: #888;">No results found in our library.</p>
+            <p style="text-align: center; color: #888;">No results found.</p>
         <?php else: ?>
             <div class="media-grid">
-                <?php foreach ($results as $item): ?>
-                    <a href="index.php?page=watch&id=<?php echo $item['id']; ?>" class="media-card">
-                        <img src="https://image.tmdb.org/t/p/w500<?php echo $item['poster_path']; ?>" alt="<?php echo htmlspecialchars($item['title']); ?>">
+                <?php foreach ($results as $item): 
+                    $type = $item['media_type'] ?? 'movie';
+                    if ($type === 'person') continue; // Skip people
+
+                    $title = $item['title'] ?? $item['name'];
+                    $date = $item['release_date'] ?? $item['first_air_date'] ?? '';
+                    $poster = $item['poster_path'] ?? '';
+                    
+                    if (!$poster) continue; // Skip items without images
+                ?>
+                    <a href="index.php?page=watch&type=<?php echo $type; ?>&id=<?php echo $item['id']; ?>" class="media-card">
+                        <img src="https://image.tmdb.org/t/p/w500<?php echo $poster; ?>" alt="<?php echo htmlspecialchars($title); ?>" loading="lazy">
                         <div class="info">
-                            <h3><?php echo htmlspecialchars($item['title']); ?></h3>
-                            <span><?php echo substr($item['release_date'], 0, 4); ?></span>
+                            <h3><?php echo htmlspecialchars($title); ?></h3>
+                            <span><?php echo substr($date, 0, 4); ?></span>
                         </div>
                     </a>
                 <?php endforeach; ?>

@@ -1,44 +1,57 @@
 <?php
 // home.php
-// Assumes $pdo is available from index.php
+require_once 'api/tmdb.php';
 
-// Fetch Featured Movie (Random or Latest)
-$featured = $pdo->query("SELECT * FROM content WHERE type='movie' ORDER BY RANDOM() LIMIT 1")->fetch();
+$tmdb = new TMDB();
 
-// Fetch Latest Movies
-$latestMovies = $pdo->query("SELECT * FROM content WHERE type='movie' ORDER BY id DESC LIMIT 12")->fetchAll();
+// Fetch Data Live from TMDB
+$trending = $tmdb->getTrending('movie', 'week')['results'];
+$featured = $trending[0]; // Top trending item as Hero
 
-// Fetch Top Rated (using rating field)
-$topRated = $pdo->query("SELECT * FROM content WHERE type='movie' ORDER BY rating DESC LIMIT 12")->fetchAll();
+$popularMovies = $tmdb->getPopular('movie')['results'];
+$topRatedMovies = $tmdb->getTopRated('movie')['results'];
+$popularSeries = $tmdb->getPopular('tv')['results'];
 ?>
 
-<?php if ($featured): ?>
-    <section class="hero" style="background-image: url('https://image.tmdb.org/t/p/original<?php echo $featured['backdrop_path']; ?>');">
-        <div class="hero-content">
-            <h1><?php echo htmlspecialchars($featured['title']); ?></h1>
-            <p style="font-size: 1.2rem; margin-bottom: 20px; text-shadow: 2px 2px 4px #000;"><?php echo htmlspecialchars(substr($featured['overview'], 0, 150)) . '...'; ?></p>
-            <div class="buttons">
-                <a href="index.php?page=watch&id=<?php echo $featured['id']; ?>" class="btn" style="background: white; color: black; border-color: white;">Play Now</a>
-                <a href="index.php?page=watch&id=<?php echo $featured['id']; ?>" class="btn">More Info</a>
-            </div>
+<!-- Hero Section -->
+<section class="hero" style="background-image: url('https://image.tmdb.org/t/p/original<?php echo $featured['backdrop_path']; ?>');">
+    <div class="hero-content">
+        <h1><?php echo htmlspecialchars($featured['title'] ?? $featured['name']); ?></h1>
+        <p style="font-size: 1.2rem; margin-bottom: 20px; text-shadow: 2px 2px 4px #000;"><?php echo htmlspecialchars(substr($featured['overview'], 0, 150)) . '...'; ?></p>
+        <div class="buttons">
+            <a href="index.php?page=watch&type=movie&id=<?php echo $featured['id']; ?>" class="btn" style="background: white; color: black; border-color: white;">Play Now</a>
+            <a href="index.php?page=watch&type=movie&id=<?php echo $featured['id']; ?>" class="btn">More Info</a>
         </div>
-    </section>
-<?php else: ?>
-    <section class="hero">
-        <div class="hero-content">
-            <h1>Welcome to Great10</h1>
-            <p>No content available. Please login to Admin Panel to import movies.</p>
-            <a href="admin/login.php" class="btn">Go to Admin</a>
-        </div>
-    </section>
-<?php endif; ?>
+    </div>
+</section>
 
+<!-- Trending Section -->
 <section class="section">
-    <div class="section-title">Latest Movies</div>
+    <div class="section-title">Trending Now</div>
     <div class="media-grid">
-        <?php foreach ($latestMovies as $item): ?>
-            <a href="index.php?page=watch&id=<?php echo $item['id']; ?>" class="media-card">
-                <img src="https://image.tmdb.org/t/p/w500<?php echo $item['poster_path']; ?>" alt="<?php echo htmlspecialchars($item['title']); ?>">
+        <?php foreach ($trending as $item): 
+            $title = $item['title'] ?? $item['name'];
+            $date = $item['release_date'] ?? $item['first_air_date'];
+            $type = isset($item['title']) ? 'movie' : 'tv';
+        ?>
+            <a href="index.php?page=watch&type=<?php echo $type; ?>&id=<?php echo $item['id']; ?>" class="media-card">
+                <img src="https://image.tmdb.org/t/p/w500<?php echo $item['poster_path']; ?>" alt="<?php echo htmlspecialchars($title); ?>" loading="lazy">
+                <div class="info">
+                    <h3><?php echo htmlspecialchars($title); ?></h3>
+                    <span><?php echo substr($date, 0, 4); ?></span>
+                </div>
+            </a>
+        <?php endforeach; ?>
+    </div>
+</section>
+
+<!-- Popular Movies -->
+<section class="section">
+    <div class="section-title">Popular Movies</div>
+    <div class="media-grid">
+        <?php foreach ($popularMovies as $item): ?>
+            <a href="index.php?page=watch&type=movie&id=<?php echo $item['id']; ?>" class="media-card">
+                <img src="https://image.tmdb.org/t/p/w500<?php echo $item['poster_path']; ?>" alt="<?php echo htmlspecialchars($item['title']); ?>" loading="lazy">
                 <div class="info">
                     <h3><?php echo htmlspecialchars($item['title']); ?></h3>
                     <span><?php echo substr($item['release_date'], 0, 4); ?></span>
@@ -48,15 +61,16 @@ $topRated = $pdo->query("SELECT * FROM content WHERE type='movie' ORDER BY ratin
     </div>
 </section>
 
+<!-- Popular TV Series -->
 <section class="section">
-    <div class="section-title">Top Rated</div>
+    <div class="section-title">Popular Series</div>
     <div class="media-grid">
-        <?php foreach ($topRated as $item): ?>
-            <a href="index.php?page=watch&id=<?php echo $item['id']; ?>" class="media-card">
-                <img src="https://image.tmdb.org/t/p/w500<?php echo $item['poster_path']; ?>" alt="<?php echo htmlspecialchars($item['title']); ?>">
+        <?php foreach ($popularSeries as $item): ?>
+            <a href="index.php?page=watch&type=tv&id=<?php echo $item['id']; ?>" class="media-card">
+                <img src="https://image.tmdb.org/t/p/w500<?php echo $item['poster_path']; ?>" alt="<?php echo htmlspecialchars($item['name']); ?>" loading="lazy">
                 <div class="info">
-                    <h3><?php echo htmlspecialchars($item['title']); ?></h3>
-                    <span>★ <?php echo $item['rating']; ?></span>
+                    <h3><?php echo htmlspecialchars($item['name']); ?></h3>
+                    <span><?php echo substr($item['first_air_date'], 0, 4); ?></span>
                 </div>
             </a>
         <?php endforeach; ?>

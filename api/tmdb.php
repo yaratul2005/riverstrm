@@ -36,6 +36,18 @@ class TMDB {
         return $this->request("/$type/$id", ['append_to_response' => 'credits,similar,videos']);
     }
 
+    public function getPopular($type = 'movie', $page = 1) {
+        return $this->request("/$type/popular", ['page' => $page]);
+    }
+
+    public function getTopRated($type = 'movie', $page = 1) {
+        return $this->request("/$type/top_rated", ['page' => $page]);
+    }
+
+    public function getDiscover($type = 'movie', $params = []) {
+        return $this->request("/discover/$type", $params);
+    }
+
     public function getImageUrl($path, $size = 'original') {
         if (!$path) return ''; // placeholder logic here
         return "https://image.tmdb.org/t/p/$size$path";
