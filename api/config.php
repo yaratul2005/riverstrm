@@ -18,7 +18,7 @@ define('TMDB_API_KEY', '667911222fb9399f2d4bec7e5f4d548b');
 define('RIVESTREAM_URL', 'https://rivestream.pages.dev/embed'); // Placeholder base
 
 // Database Configuration
-define('DB_CONNECTION', 'sqlite'); // Options: 'sqlite', 'mysql'
+define('DB_CONNECTION', 'mysql'); // Options: 'sqlite', 'mysql'
 
 // MySQL Settings (only used if DB_CONNECTION is mysql)
 define('DB_HOST', 'localhost');
