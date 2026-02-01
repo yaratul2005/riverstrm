@@ -361,11 +361,42 @@ header.scrolled {
     z-index: 1;
 }
 
-.hero-slide .hero-bg {
+background-size: cover;
+background-position: center top;
+}
+
+.hero-slide:not(.active) {
+    pointer-events: none;
+}
+
+/* --- Episodes Horizontal Scroll --- */
+.episode-list {
+    display: flex;
+    overflow-x: auto;
+    gap: 15px;
+    padding-bottom: 15px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-color) #222;
+}
+
+.episode-card {
+    flex: 0 0 250px;
+    /* Fixed width for cards */
+    background: #1a1a1a;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: var(--transition-fast);
+    border: 1px solid transparent;
+}
+
+.episode-card img {
     width: 100%;
-    height: 100%;
-    background-size: cover;
-    background-position: center top;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+}
+
+.episode-info {
+    padding: 10px;
 }
 
 /* --- Categories --- */
