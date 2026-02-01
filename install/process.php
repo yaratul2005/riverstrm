@@ -6,14 +6,14 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$db_host = $_POST['db_host'];
-$db_name = $_POST['db_name'];
-$db_user = $_POST['db_user'];
-$db_pass = $_POST['db_pass'];
+$db_host = trim($_POST['db_host']);
+$db_name = trim($_POST['db_name']);
+$db_user = trim($_POST['db_user']);
+$db_pass = trim($_POST['db_pass']);
 
-$admin_email = $_POST['admin_email'];
-$admin_pass = $_POST['admin_pass'];
-$site_url = rtrim($_POST['site_url'], '/');
+$admin_email = trim($_POST['admin_email']);
+$admin_pass = trim($_POST['admin_pass']);
+$site_url = rtrim(trim($_POST['site_url']), '/');
 
 // 1. Validate Database Connection
 try {
