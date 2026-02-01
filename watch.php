@@ -7,30 +7,58 @@ $type = $_GET['type'] ?? 'movie';
 $season = $_GET['season'] ?? 1;
 $episode = $_GET['episode'] ?? 1;
 
-if (!$id) {
-    echo "<div class='section'><p>No content selected.</p></div>";
-    exit;
-}
+if (!$id) { exit("<p>No content selected.</p>"); }
 
 $tmdb = new TMDB();
-$details = $tmdb->getDetails($id, $type);
+$pdo = getDB();
 
-if (!$details) {
-    echo "<div class='section'><p>Content not found.</p></div>";
-    exit;
+// 1. Check Local CMS First (Hybrid Strategy)
+$stmt = $pdo->prepare("SELECT * FROM local_content WHERE tmdb_id = ? AND type = ?");
+$stmt->execute([$id, $type]);
+$localData = $stmt->fetch();
+
+if ($localData) {
+    // USE CMS DATA (Curated)
+    $details = [
+        'title' => $localData['title'], // Use our custom title
+        'name' => $localData['title'],
+        'overview' => $localData['overview'],
+        'backdrop_path' => $localData['backdrop_path'],
+        'vote_average' => $localData['vote_average'],
+        'release_date' => $localData['release_date'],
+        'first_air_date' => $localData['release_date']
+    ];
+    // SEO Overrides
+    $pageTitle = $localData['seo_title'] ?: $localData['title'];
+    $pageDesc = $localData['seo_description'] ?: $localData['overview'];
+} else {
+    // FALLBACK TO API
+    $details = $tmdb->getDetails($id, $type);
+    if (!$details) { exit("<p>Content not found.</p>"); }
+    $pageTitle = $details['title'] ?? $details['name'];
+    $pageDesc = $details['overview'];
 }
 
+// ... Rest of the logic ...
 $title = $details['title'] ?? $details['name'];
 $date = $details['release_date'] ?? $details['first_air_date'] ?? '';
 $backdrop = $details['backdrop_path'];
 $rating = $details['vote_average'];
 
-// Handle Series Logic
+// Handle Series Logic (API only for seasons currently, unless fully curated)
 $episodes = [];
 $total_seasons = 0;
 if ($type === 'tv' || $type === 'series') {
     $type = 'tv';
-    $total_seasons = $details['number_of_seasons'] ?? 1;
+    $total_seasons = $details['number_of_seasons'] ?? 1; // Note: Local DB needs season count column if we purely go local
+    // For now, even if local, we can fetch Season Details from TMDB to keep it simple, 
+    // BUT we use the Title/Desc from Local DB.
+    if (!isset($details['seasons'])) {
+         // Re-fetch logic or just trust TMDB for structure
+         $apiDetails = $tmdb->getDetails($id, $type);
+         $total_seasons = $apiDetails['number_of_seasons'] ?? 1;
+    }
+    
     $seasonData = $tmdb->getSeasonDetails($id, $season);
     $episodes = $seasonData['episodes'] ?? [];
     $playerType = 'series';
@@ -44,6 +72,19 @@ if ($playerType === 'series') {
 }
 ?>
 
+<!-- Dynamic SEO Tags (Javascript Injection or Head Output) -->
+<script>
+    document.title = "<?php echo htmlspecialchars($pageTitle . ' - Great10'); ?>";
+    // Update Meta Desc
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if (!metaDesc) {
+        metaDesc = document.createElement('meta');
+        metaDesc.name = "description";
+        document.head.appendChild(metaDesc);
+    }
+    metaDesc.content = "<?php echo htmlspecialchars(substr($pageDesc, 0, 160)); ?>";
+</script>
+
 <!-- Player Wrapper -->
 <div class="player-container">
     <iframe src="<?php echo $playerUrl; ?>" allowfullscreen scrolling="no" frameborder="0"></iframe>
@@ -51,7 +92,10 @@ if ($playerType === 'series') {
 
 <!-- Content Info -->
 <div class="watch-meta">
-    <h1 style="font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 800; margin-bottom: 10px; text-shadow: 0 0 20px rgba(255,255,255,0.1);"><?php echo htmlspecialchars($title); ?></h1>
+    <h1 style="font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 800; margin-bottom: 10px; text-shadow: 0 0 20px rgba(255,255,255,0.1);">
+        <?php echo htmlspecialchars($title); ?> 
+        <?php if($localData): ?><span style="font-size: 0.5em; background: #333; padding: 2px 6px; border-radius: 4px; vertical-align: middle;">CMS</span><?php endif; ?>
+    </h1>
     
     <div style="color: #a3a3a3; font-size: 0.95rem; margin-bottom: 25px; display: flex; gap: 15px; align-items: center;">
         <span><?php echo substr($date, 0, 4); ?></span>
@@ -100,10 +144,9 @@ if ($playerType === 'series') {
         </div>
     <?php endif; ?>
 
-    <!-- Comments Section -->
+    <!-- Comments Section (From V2) -->
     <div class="comments-container">
         <h3 class="section-title" style="margin-bottom: 20px;">Discussion</h3>
-        
         <?php if (isset($_SESSION['user_id'])): ?>
             <form id="commentForm" class="comment-form">
                 <input type="hidden" name="tmdb_id" value="<?php echo $id; ?>">
@@ -114,31 +157,8 @@ if ($playerType === 'series') {
         <?php else: ?>
             <p style="color: #888; margin-bottom: 20px;"><a href="index.php?page=login" style="color: white; text-decoration: underline;">Login</a> to post a comment.</p>
         <?php endif; ?>
-
         <div id="commentList" class="comment-list" data-tmdb-id="<?php echo $id; ?>">
-            <!-- Comments loaded via JS -->
             <div style="text-align: center; color: #666; padding: 20px;">Loading comments...</div>
         </div>
     </div>
-
-    <!-- Similar Content -->
-    <?php if (!empty($details['similar']['results'])): ?>
-        <div style="margin-top: 60px;">
-            <h3 class="section-title">You May Also Like</h3>
-            <div class="media-grid">
-                <?php foreach (array_slice($details['similar']['results'], 0, 6) as $item): 
-                        $sTitle = $item['title'] ?? $item['name'];
-                        $sImg = $item['poster_path'] ? "https://image.tmdb.org/t/p/w300" . $item['poster_path'] : "";
-                        if (!$sImg) continue;
-                ?>
-                    <a href="index.php?page=watch&type=<?php echo $type; ?>&id=<?php echo $item['id']; ?>" class="media-card">
-                        <img src="<?php echo $sImg; ?>" alt="<?php echo htmlspecialchars($sTitle); ?>" loading="lazy">
-                        <div class="info">
-                            <h3><?php echo htmlspecialchars($sTitle); ?></h3>
-                        </div>
-                    </a>
-                <?php endforeach; ?>
-            </div>
-        </div>
-    <?php endif; ?>
 </div>
