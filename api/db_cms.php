@@ -67,7 +67,22 @@ try {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
     echo "OK\n";
     
-    // 4. Users Table (Ensure it exists for Admin)
+    // 4. Custom Pages Table (For CMS)
+    echo "Checking 'custom_pages' table... ";
+    $pdo->exec("CREATE TABLE IF NOT EXISTS custom_pages (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        slug VARCHAR(255) NOT NULL UNIQUE,
+        content LONGTEXT,
+        seo_title VARCHAR(255),
+        seo_description TEXT,
+        is_published TINYINT(1) DEFAULT 1,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    echo "OK\n";
+
+    // 5. Users Table (Ensure it exists for Admin)
     echo "Checking 'users' table... ";
     $pdo->exec("CREATE TABLE IF NOT EXISTS users (
         id INT AUTO_INCREMENT PRIMARY KEY,

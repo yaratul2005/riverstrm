@@ -83,6 +83,31 @@ if ($playerType === 'series') {
         document.head.appendChild(metaDesc);
     }
     metaDesc.content = "<?php echo htmlspecialchars(substr($pageDesc, 0, 160)); ?>";
+    </script>
+<?php
+// Construct JSON-LD
+$schemaType = ($type === 'tv' || $type === 'series') ? 'TVSeries' : 'Movie';
+$schemaImage = "https://image.tmdb.org/t/p/w500" . ($details['poster_path'] ?? '');
+$schemaDate = $details['release_date'] ?? $details['first_air_date'] ?? '';
+$schemaRating = $details['vote_average'] ?? 0;
+
+$schemaData = [
+    "@context" => "https://schema.org",
+    "@type" => $schemaType,
+    "name" => $title,
+    "description" => $pageDesc,
+    "image" => $schemaImage,
+    "datePublished" => $schemaDate,
+    "aggregateRating" => [
+        "@type" => "AggregateRating",
+        "ratingValue" => $schemaRating,
+        "bestRating" => "10",
+        "ratingCount" => $details['vote_count'] ?? 1
+    ]
+];
+?>
+<script type="application/ld+json">
+    <?php echo json_encode($schemaData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES); ?>
 </script>
 
 <!-- Player Wrapper -->

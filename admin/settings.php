@@ -27,6 +27,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'google_redirect_uri' => $_POST['google_redirect_uri'],
     ];
 
+    // Handle File Uploads
+    $uploadDir = '../assets/uploads/';
+    if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+
+    if (isset($_FILES['logo']) && $_FILES['logo']['error'] === 0) {
+        $logoName = 'logo_' . time() . '.' . pathinfo($_FILES['logo']['name'], PATHINFO_EXTENSION);
+        move_uploaded_file($_FILES['logo']['tmp_name'], $uploadDir . $logoName);
+        $settings['site_logo'] = $uploadDir . $logoName;
+    }
+
+    if (isset($_FILES['favicon']) && $_FILES['favicon']['error'] === 0) {
+        $favName = 'favicon_' . time() . '.' . pathinfo($_FILES['favicon']['name'], PATHINFO_EXTENSION);
+        move_uploaded_file($_FILES['favicon']['tmp_name'], $uploadDir . $favName);
+        $settings['site_favicon'] = $uploadDir . $favName;
+    }
+
+    // Add extra fields
+    $settings['head_code'] = $_POST['head_code'];
+
     foreach ($settings as $key => $val) {
         $stmt->execute([$key, trim($val)]);
     }
@@ -56,11 +75,29 @@ $current = $pdo->query("SELECT * FROM settings")->fetchAll(PDO::FETCH_KEY_PAIR);
             <div style="background: green; color: white; padding: 15px; border-radius: 5px; margin-bottom: 20px;"><?php echo $message; ?></div>
         <?php endif; ?>
 
-        <form method="POST">
+        <form method="POST" enctype="multipart/form-data">
             <div class="setting-group">
                 <h3>General</h3>
                 <label>Site Name</label>
                 <input type="text" name="site_name" value="<?php echo htmlspecialchars($current['site_name'] ?? 'Great10 Streaming'); ?>">
+                
+                <label>Site Logo</label>
+                <?php if (!empty($current['site_logo'])): ?>
+                    <img src="<?php echo $current['site_logo']; ?>" height="50" style="margin-bottom: 10px; display: block; background: #333; padding: 5px;">
+                <?php endif; ?>
+                <input type="file" name="logo" accept="image/*">
+
+                <label>Favicon</label>
+                <?php if (!empty($current['site_favicon'])): ?>
+                    <img src="<?php echo $current['site_favicon']; ?>" height="32" style="margin-bottom: 10px; display: block;">
+                <?php endif; ?>
+                <input type="file" name="favicon" accept="image/*">
+            </div>
+
+            <div class="setting-group">
+                <h3>Custom Code</h3>
+                <label>Head HTML (Analytics, Scripts, Verification)</label>
+                <textarea name="head_code" rows="6" placeholder="<script>...</script>"><?php echo htmlspecialchars($current['head_code'] ?? ''); ?></textarea>
             </div>
 
             <div class="setting-group">

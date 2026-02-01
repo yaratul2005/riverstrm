@@ -3,7 +3,15 @@
 require_once 'api/config.php';
 
 // Initialize DB (Auto-Migration)
+// Initialize DB (Auto-Migration)
 $pdo = getDB();
+
+// Fetch Global Settings
+$settings = $pdo->query("SELECT * FROM settings")->fetchAll(PDO::FETCH_KEY_PAIR);
+$siteName = $settings['site_name'] ?? SITE_NAME;
+$favicon = $settings['site_favicon'] ?? '';
+$logo = $settings['site_logo'] ?? '';
+$headCode = $settings['head_code'] ?? '';
 
 $page = isset($_GET['page']) ? $_GET['page'] : 'home';
 ?>
@@ -12,9 +20,13 @@ $page = isset($_GET['page']) ? $_GET['page'] : 'home';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo SITE_NAME; ?></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo $siteName; ?></title>
+    <?php if ($favicon): ?><link rel="icon" href="<?php echo $favicon; ?>"><?php endif; ?>
     <link rel="stylesheet" href="assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <?php echo $headCode; ?>
 </head>
 <body>
     <div id="preloader">
@@ -24,7 +36,13 @@ $page = isset($_GET['page']) ? $_GET['page'] : 'home';
     <!-- Global Header (Always Visible) -->
     <?php if ($page !== 'login'): ?>
     <header id="main-header">
-        <a href="index.php" class="logo">Great10</a>
+        <a href="index.php" class="logo">
+            <?php if ($logo): ?>
+                <img src="<?php echo $logo; ?>" alt="<?php echo $siteName; ?>" style="height: 35px; vertical-align: middle;">
+            <?php else: ?>
+                Great10
+            <?php endif; ?>
+        </a>
         <nav class="nav-links">
             <a href="index.php?page=home" class="<?php echo $page == 'home' ? 'active' : ''; ?>">Home</a>
             <a href="index.php?page=search" class="<?php echo $page == 'search' ? 'active' : ''; ?>">Search</a>
