@@ -292,6 +292,7 @@ header.scrolled {
     /* 16:9 aspect ratio */
     background: #000;
     margin: 0;
+    margin-top: var(--nav-height);
 }
 
 .player-container iframe {
@@ -554,4 +555,81 @@ header.scrolled {
     /* Remove hover info on mobile for cleaner look */
 
     /* Show title below card on mobile if desired, or relying on poster */
+}
+
+/* --- Auth Page (Login/Register) --- */
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: url('https://assets.nflxext.com/ffe/siteui/vlv3/dace47b4-a5cb-4368-80fe-c26f3e77d540/f5b52435-458f-498f-9d1d-ccd4f1af9913/US-en-20231023-popsignuptwoweeks-perspective_alpha_website_large.jpg') no-repeat center center/cover;
+    position: relative;
+}
+
+.auth-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 1;
+}
+
+.auth-form {
+    position: relative;
+    z-index: 2;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(10px);
+    padding: 60px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.auth-form h2 {
+    color: white;
+    margin-bottom: 25px;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 16px;
+    background: #333;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    font-size: 1rem;
+    outline: none;
+}
+
+.form-group input:focus {
+    background: #444;
+}
+
+.auth-form .btn {
+    padding: 16px;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.auth-form p {
+    color: #8c8c8c;
+    margin-top: 15px;
+    font-size: 0.95rem;
+}
+
+.auth-form a {
+    color: white;
+}
+
+.auth-form a:hover {
+    text-decoration: underline;
 }
