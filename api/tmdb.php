@@ -28,6 +28,11 @@ class TMDB {
         return $this->request("/search/$type", ['query' => $query]);
     }
 
+    public function getSeasonDetails($tvId, $seasonNumber) {
+        return $this->request("/tv/$tvId/season/$seasonNumber");
+    }
+
+
     public function getTrending($type = 'movie', $timeWindow = 'week') {
         return $this->request("/trending/$type/$timeWindow");
     }

@@ -1,18 +1,22 @@
 /* assets/css/style.css */
 
 :root {
-    --bg-color: #0a0a0a;
+    --bg-color: #000000;
+    --bg-secondary: #0f0f0f;
     --text-color: #ffffff;
-    --accent-color: #333;
-    --hover-color: #555;
-    --glass: rgba(255, 255, 255, 0.1);
-    --font-main: 'Inter', sans-serif;
+    --text-muted: #a3a3a3;
+    --accent-color: #e50914;
+    /* Netflix Red-ish for highlights */
+    --font-main: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --header-height: 70px;
+    --transition: all 0.3s ease;
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
 }
 
 body {
@@ -20,197 +24,361 @@ body {
     color: var(--text-color);
     font-family: var(--font-main);
     overflow-x: hidden;
+    line-height: 1.6;
 }
 
-/* Typography & Utilities */
-a { text-decoration: none; color: inherit; transition: 0.3s; }
-ul { list-style: none; }
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: var(--transition);
+}
 
-/* Header/Nav */
+ul {
+    list-style: none;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+/* --- Header --- */
 header {
     position: fixed;
     top: 0;
     width: 100%;
-    padding: 20px 40px;
+    height: var(--header-height);
+    padding: 0 4%;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0) 100%);
     z-index: 1000;
-    transition: background 0.3s ease;
+    transition: background-color 0.3s;
 }
 
 header.scrolled {
-    background: var(--bg-color);
-    border-bottom: 1px solid var(--accent-color);
+    background-color: var(--bg-color);
 }
 
 .logo {
-    font-size: 24px;
+    font-size: 1.8rem;
     font-weight: 900;
-    letter-spacing: -1px;
+    color: var(--text-color);
+    /* White logo */
     text-transform: uppercase;
+    letter-spacing: -1px;
 }
 
 .nav-links {
     display: flex;
-    gap: 20px;
+    gap: 30px;
 }
 
-.nav-links a:hover {
-    color: #ccc;
-    transform: translateY(-2px);
+.nav-links a {
+    font-size: 0.9rem;
+    color: #e5e5e5;
+    font-weight: 500;
 }
 
-/* Buttons */
-.btn {
-    padding: 10px 20px;
-    border: 1px solid var(--text-color);
-    background: transparent;
-    color: var(--text-color);
+.nav-links a:hover,
+.nav-links a.active {
+    color: white;
+    font-weight: 700;
+}
+
+/* Mobile Nav Toggle */
+.menu-toggle {
+    display: none;
+    font-size: 1.5rem;
     cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    font-size: 12px;
-    letter-spacing: 1px;
 }
 
-.btn:hover {
-    background: var(--text-color);
-    color: var(--bg-color);
-}
-
-/* Hero Section */
+/* --- Hero Section --- */
 .hero {
-    height: 80vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    height: 85vh;
+    min-height: 500px;
     position: relative;
     background-size: cover;
-    background-position: center;
+    background-position: center top;
+    display: flex;
+    align-items: center;
 }
 
 .hero::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, var(--bg-color), transparent 80%);
+    background: linear-gradient(0deg, var(--bg-color) 0%, transparent 50%, rgba(0, 0, 0, 0.7) 100%);
 }
 
 .hero-content {
     position: relative;
-    z-index: 2;
-    text-align: center;
+    z-index: 10;
+    width: 90%;
     max-width: 800px;
-    padding: 20px;
-    animation: fadeInUp 1s ease-out;
+    margin-left: 4%;
 }
 
 .hero h1 {
-    font-size: 4rem;
-    margin-bottom: 10px;
+    font-size: clamp(2.5rem, 5vw, 5rem);
+    line-height: 1.1;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    max-width: 15ch;
 }
 
-/* Animations */
-@keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
+.hero p {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    color: #dedede;
+    margin-bottom: 2rem;
+    max-width: 600px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
 }
 
-/* Grid & Cards */
+.buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.btn {
+    padding: 0.8rem 2rem;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: var(--transition);
+}
+
+.btn-primary {
+    background-color: white;
+    color: black;
+}
+
+.btn-primary:hover {
+    background-color: rgba(255, 255, 255, 0.75);
+}
+
+.btn-secondary {
+    background-color: rgba(109, 109, 110, 0.7);
+    color: white;
+    backdrop-filter: blur(4px);
+}
+
+.btn-secondary:hover {
+    background-color: rgba(109, 109, 110, 0.4);
+}
+
+/* --- Sections --- */
 .section {
-    padding: 40px;
+    padding: 3vw 4%;
+    position: relative;
+    z-index: 5;
 }
 
 .section-title {
-    font-size: 1.5rem;
-    margin-bottom: 20px;
-    border-left: 4px solid var(--text-color);
-    padding-left: 10px;
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #e5e5e5;
 }
 
+/* --- Media Grid (Scrollable Row on Mobile, Grid on Desktop) --- */
 .media-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+    padding-bottom: 20px;
 }
 
 .media-card {
     position: relative;
+    background: var(--bg-secondary);
+    border-radius: 4px;
     overflow: hidden;
-    cursor: pointer;
-    transition: transform 0.3s ease;
+    transition: var(--transition);
+    aspect-ratio: 2/3;
 }
 
 .media-card img {
     width: 100%;
-    height: 300px;
+    height: 100%;
     object-fit: cover;
-    display: block;
-    transition: transform 0.3s ease;
-}
-
-.media-card:hover {
-    transform: scale(1.05);
-    z-index: 10;
 }
 
 .media-card .info {
     position: absolute;
     bottom: 0;
     left: 0;
-    width: 100%;
-    padding: 20px;
-    background: linear-gradient(to top, black, transparent);
+    right: 0;
+    padding: 15px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transform: translateY(10px);
+    transition: var(--transition);
+}
+
+.media-card:hover {
+    transform: scale(1.05);
+    z-index: 20;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
 }
 
 .media-card:hover .info {
     opacity: 1;
+    transform: translateY(0);
 }
 
-/* Watch Page */
+.media-card h3 {
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+    line-height: 1.2;
+}
+
+.media-card span {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* --- Player & Watch Page --- */
 .player-container {
     width: 100%;
-    height: 100vh;
+    aspect-ratio: 16/9;
     background: black;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    max-height: 85vh;
+    margin: 0 auto;
 }
 
-iframe {
+.player-container iframe {
     width: 100%;
     height: 100%;
-    border: none;
 }
 
-/* Form Styles */
-.auth-container {
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.watch-meta {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 4%;
 }
 
-.auth-form {
-    background: #111;
-    padding: 40px;
-    border: 1px solid #333;
-    width: 400px;
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-group input {
-    width: 100%;
-    padding: 10px;
-    background: #000;
-    border: 1px solid #333;
+/* --- Episode Selector --- */
+.season-selector {
+    background: #222;
     color: white;
+    padding: 10px 20px;
+    border: 1px solid #444;
+    border-radius: 4px;
+    font-size: 1rem;
+    margin-bottom: 20px;
+    cursor: pointer;
+}
+
+.episode-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.episode-card {
+    background: #1a1a1a;
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: var(--transition);
+    border: 1px solid #333;
+    display: flex;
+    flex-direction: column;
+}
+
+.episode-card:hover,
+.episode-card.active {
+    background: #333;
+    border-color: white;
+}
+
+.episode-card img {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+}
+
+.episode-info {
+    padding: 10px;
+}
+
+.episode-number {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #ccc;
+    margin-right: 10px;
+}
+
+/* --- Responsive Breakpoints --- */
+@media (max-width: 768px) {
+
+    /* Nav */
+    .menu-toggle {
+        display: block;
+        position: relative;
+        z-index: 1001;
+    }
+
+    .nav-links {
+        position: fixed;
+        inset: 0;
+        background: black;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        transform: translateX(100%);
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .nav-links.active {
+        transform: translateX(0);
+    }
+
+    .nav-links a {
+        font-size: 1.5rem;
+    }
+
+    /* Hero */
+    .hero {
+        min-height: 60vh;
+        align-items: flex-end;
+        padding-bottom: 40px;
+    }
+
+    .hero-content {
+        width: 100%;
+        margin: 0 20px;
+        text-align: left;
+    }
+
+    .hero h1 {
+        font-size: 2.5rem;
+    }
+
+    /* Grids */
+    .media-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        /* Smaller cards on mobile */
+        gap: 10px;
+    }
+
+    .media-card .info {
+        opacity: 1;
+        /* Always show info on mobile */
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+        padding: 8px;
+        transform: none;
+    }
 }
