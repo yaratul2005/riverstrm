@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         $pdo = getDB();
-        $stmt = $pdo->prepare("INSERT INTO comments (user_id, tmdb_id, content_type, comment) VALUES (?, ?, ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO comments (user_id, tmdb_id, type, comment) VALUES (?, ?, ?, ?)");
         $stmt->execute([$userId, $tmdbId, $type, $comment]);
         
         echo json_encode(['success' => true, 'username' => $_SESSION['username'] ?? 'User', 'date' => date('Y-m-d H:i')]);
