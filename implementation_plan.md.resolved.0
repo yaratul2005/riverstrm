@@ -1,0 +1,71 @@
+# Netflix Clone Implementation Plan
+
+**Goal**: Create a fully responsive, animated, black-and-white themed streaming platform with a robust admin backend and internal CMS, using TMDB for metadata and Rivestream for playback.
+
+## User Review Required
+> [!IMPORTANT]
+> **Hosting Constraints**: The project is designed for shared hosting (PHP/MySQL). I will assume a standard MySQL database is available. For local development, I will use SQLite (`db/database.sqlite`) to demonstrate functionality without needing a local MySQL server setup. You can switch to MySQL in `api/config.php` by changing the `DB_CONNECTION` setting.
+
+> [!NOTE]
+> **Rivestream API**: The embed URL pattern will be configured in `api/config.php`. I will use a standard pattern initially, which you can update if the documentation requires a specific format I couldn't auto-detect.
+
+## Proposed Changes
+
+### Project Structure (Root)
+#### [NEW] [api/config.php](file:///C:/Users/User/.gemini/antigravity/brain/bd51dda4-f63b-48e9-8898-9aa085ecd638/api/config.php)
+- Stores database credentials, TMDB API Key (`667911222fb9399f2d4bec7e5f4d548b`), and site settings.
+
+#### [NEW] [index.php](file:///C:/Users/User/.gemini/antigravity/brain/bd51dda4-f63b-48e9-8898-9aa085ecd638/index.php)
+- Main entry point. Handles routing for standard pages (home, search, watch).
+
+#### [NEW] [assets/css/style.css](file:///C:/Users/User/.gemini/antigravity/brain/bd51dda4-f63b-48e9-8898-9aa085ecd638/assets/css/style.css)
+- Core styling.
+- **Theme**: Black (`#0a0a0a`) and White (`#ffffff`) palette.
+- **Animations**: CSS transitions for hover effects, page loads, and modal appearances.
+
+### Backend (Admin & API)
+#### [NEW] [api/tmdb.php](file:///C:/Users/User/.gemini/antigravity/brain/bd51dda4-f63b-48e9-8898-9aa085ecd638/api/tmdb.php)
+- Wrapper class to fetch movies/series metadata, search results, and details from TMDB.
+
+#### [NEW] [admin/](file:///C:/Users/User/.gemini/antigravity/brain/bd51dda4-f63b-48e9-8898-9aa085ecd638/admin)
+- `index.php`: Dashboard with statistics.
+- `login.php`: Admin authentication.
+- `movies.php` / `series.php`: CMS to Import from TMDB or manually add content.
+- `users.php`: Manage registered users.
+- `settings.php`: Update site title, API keys, etc.
+
+### Frontend Pages
+#### [NEW] [home.php](file:///C:/Users/User/.gemini/antigravity/brain/bd51dda4-f63b-48e9-8898-9aa085ecd638/home.php)
+- Hero slider (trending movies).
+- Horizontal rows for "Popular", "Top Rated".
+
+#### [NEW] [watch.php](file:///C:/Users/User/.gemini/antigravity/brain/bd51dda4-f63b-48e9-8898-9aa085ecd638/watch.php)
+- The player page.
+- Embeds Rivestream iframe using the TMDB ID.
+- Shows movie details (plot, cast).
+
+#### [NEW] [user/dashboard.php](file:///C:/Users/User/.gemini/antigravity/brain/bd51dda4-f63b-48e9-8898-9aa085ecd638/user/dashboard.php)
+- Browse "Favorites" and "Watch History".
+
+## Verification Plan
+
+### Automated Tests
+- None planned for shared hosting environment (PHPUnit setup often requires SSH). I will rely on manual verification.
+
+### Manual Verification
+1.  **Installation**:
+    - Open `index.php`. It should verify DB connection (SQLite auto-created).
+2.  **Admin Flow**:
+    - Go to `/admin/login.php` (default: `admin` / `admin123`).
+    - Login and see Dashboard.
+    - Go to "Movies" -> "Import" -> Search "Inception" -> Click "Import".
+    - Verify "Inception" appears in the "Manage Movies" list.
+3.  **Frontend Flow**:
+    - Go to Homepage. Verify "Inception" appears in the "Latest" section.
+    - Click the movie card. 
+    - Verify redirect to `watch.php?id=...`.
+    - Verify Player loads (iframe active) and metadata is correct.
+4.  **User Flow**:
+    - Register a new account.
+    - "Favorite" a movie. 
+    - Go to `/user/dashboard.php` and verify the movie is listed.

@@ -1,0 +1,53 @@
+# Verification Walkthrough
+
+## 1. Setup & Installation
+The project is built with PHP and SQLite (by default), so it requires no complex database setup for local testing.
+
+### Requirements
+- PHP 7.4 or higher
+- PHP Extensions: `pdo`, `pdo_sqlite` (or `pdo_mysql`), `curl`
+
+### Running Locally
+1. Open the project folder in your terminal.
+2. Start the built-in PHP server:
+   ```bash
+   php -S localhost:8000
+   ```
+3. Open your browser to `http://localhost:8000`.
+
+## 2. Admin Configuration (Initial Step)
+Before the site has content, you must import movies.
+1. Navigate to `http://localhost:8000/admin/login.php`.
+2. Login with default credentials:
+   - **Email**: `admin@great10.xyz`
+   - **Password**: `admin123`
+3. Go to **Manage Movies**.
+4. In the "Import from TMDB" search box, type a movie name (e.g., "Inception", "The Matrix").
+5. Click **Import** on one of the results.
+   - *Verify*: The green message "Imported: [Movie Title]" appears.
+   - *Verify*: The movie appears in the "Existing Library" list below.
+
+## 3. Frontend Verification
+1. Go back to the Homepage: `http://localhost:8000`.
+2. **Hero Section**: Verify the imported movie appears (if it's the only one, it will be the Hero).
+3. **Latest Movies**: Verify the movie card appears in the grid.
+4. **Watch Page**: Click on the movie card.
+   - *Verify*: You are redirected to the watch page.
+   - *Verify*: The player loads (iframe). *Note: Rivestream content availability depends on their service.*
+   - *Verify*: Title, Year, and Rating match the imported data.
+
+## 4. User Features
+1. Go to `http://localhost:8000/index.php?page=login`.
+2. Click **Register** toggle.
+3. Create a new account.
+   - *Verify*: "Registration successful" message.
+4. Login with the new account.
+   - *Verify*: Redirects to User Dashboard.
+   - *Verify*: Username and Email are correct.
+
+## 5. Deployment to Shared Hosting
+1. Upload all files to your `public_html`.
+2. Edit [api/config.php](file:///C:/Users/User/.gemini/antigravity/brain/bd51dda4-f63b-48e9-8898-9aa085ecd638/api/config.php):
+   - Change `DB_CONNECTION` to `'mysql'`.
+   - Update `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS` with your cPanel database details.
+3. Import the database schema manually if the script doesn't have permissions to create tables (though the code attempts `CREATE TABLE IF NOT EXISTS`).
