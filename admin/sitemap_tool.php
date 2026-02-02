@@ -53,7 +53,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
 
         foreach ($items as $c) {
-            $url = "{$baseUrl}/index.php?page=watch&type={$c['type']}&id={$c['tmdb_id']}";
+            $rawUrl = "{$baseUrl}/index.php?page=watch&type={$c['type']}&id={$c['tmdb_id']}";
+            $url = htmlspecialchars($rawUrl, ENT_XML1, 'UTF-8');
             $date = date('Y-m-d', strtotime($c['updated_at']));
             $xml .= "    <url>\n";
             $xml .= "        <loc>{$url}</loc>\n";

@@ -32,7 +32,8 @@ if ($job === 'all' || $job === 'sitemap') {
             foreach ($items as $c) {
                 // Determine ID key (TMDB vs Local)
                 $cid = $c['tmdb_id'] ?? $c['id']; 
-                $url = "{$baseUrl}/index.php?page=watch&type={$c['type']}&id={$cid}";
+                $rawUrl = "{$baseUrl}/index.php?page=watch&type={$c['type']}&id={$cid}";
+                $url = htmlspecialchars($rawUrl, ENT_XML1, 'UTF-8');
                 $date = date('Y-m-d');
                 $xml .= "    <url>\n";
                 $xml .= "        <loc>{$url}</loc>\n";
