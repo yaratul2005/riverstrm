@@ -40,28 +40,19 @@ $initialResults = $initialData['results'] ?? [];
             <?php if ($logo): ?>
                 <img src="<?php echo $logo; ?>" alt="<?php echo $siteName; ?>" style="height: 35px; vertical-align: middle;">
             <?php else: ?>
-                <?php echo $siteName; ?>
+                Great10
             <?php endif; ?>
         </a>
-        <nav>
-            <a href="index.php">Home</a>
+        <nav class="nav-links">
+            <a href="index.php?page=home">Home</a>
             <a href="index.php?page=search">Search</a>
             <?php if (isset($_SESSION['user_id'])): ?>
-                <a href="index.php?page=dashboard">My Account</a>
-                <?php if ($_SESSION['role'] === 'admin'): ?>
-                    <a href="admin/index.php" target="_blank">Admin</a>
-                <?php endif; ?>
-                <a href="api/logout.php" onclick="return confirm('Logout?');">Sign Out</a>
+                <a href="index.php?page=dashboard">My List</a>
+                <a href="api/logout.php">Logout</a>
             <?php else: ?>
-                <a href="index.php?page=login" class="btn btn-primary" style="padding: 5px 15px;">Login</a>
+                <a href="index.php?page=login" class="btn btn-primary" style="padding: 5px 15px; font-size: 0.8rem;">Login</a>
             <?php endif; ?>
         </nav>
-        
-        <!-- Search Bar (Live) -->
-        <form action="index.php" method="GET" style="margin-left: 20px; display: inline-block;">
-            <input type="hidden" name="page" value="search">
-            <input type="text" name="query" placeholder="Search..." class="search-input" autocomplete="off">
-        </form>
     </header>
 
     <div class="category-header">
