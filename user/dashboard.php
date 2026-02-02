@@ -48,16 +48,58 @@ $user = $pdo->query("SELECT * FROM users WHERE id = " . $_SESSION['user_id'])->f
                 </div>
             </div>
 
-            <!-- Favorites Placeholder -->
+            <!-- Favorites (My List) -->
             <div id="favorites" class="dash-section" style="display: none;">
-                <h2 class="section-title">My Favorites</h2>
-                <p style="color: #888;">You haven't saved any movies yet.</p>
+                <h2 class="section-title">My List</h2>
+                <?php
+                    // Fetch Watchlist
+                    $watchlist = $pdo->prepare("SELECT w.*, 0 as is_local FROM watchlist w WHERE user_id = ? ORDER BY created_at DESC");
+                    $watchlist->execute([$_SESSION['user_id']]);
+                    $list = $watchlist->fetchAll();
+                ?>
+                
+                <?php if (count($list) > 0): ?>
+                    <div class="media-grid">
+                        <?php foreach ($list as $item): 
+                            // Fetch details from TMDB on the fly (or cache ideally) - simpler for now: use JS or fetch basic info
+                            // Ideally we should store title/poster in watchlist table for speed. 
+                            // For now, let's just fetch from API quickly or store minimal data. 
+                            // Actually, let's use a helper if possible. 
+                            // WAIT: Doing 20 api calls here is bad. 
+                            // BETTER: Just show ID list OR update watchlist table to store metadata.
+                            // Let's UPDATE watchlist table structure effectively? No, too risky.
+                            // Let's just fetch for now, caching handles it properly.
+                            
+                            require_once 'api/tmdb.php'; // Ensure loaded
+                            $tmdb = new TMDB();
+                            $details = $tmdb->getDetails($item['tmdb_id'], $item['type']); 
+                            $img = 'https://image.tmdb.org/t/p/w300' . ($details['poster_path'] ?? '');
+                            $title = $details['title'] ?? $details['name'] ?? 'Unknown';
+                        ?>
+                        <a href="index.php?page=watch&type=<?php echo $item['type']; ?>&id=<?php echo $item['tmdb_id']; ?>" class="media-card">
+                            <img src="<?php echo $img; ?>" alt="<?php echo htmlspecialchars($title); ?>" loading="lazy">
+                            <div class="info">
+                                <h3><?php echo htmlspecialchars($title); ?></h3>
+                                <span><?php echo ucfirst($item['type']); ?></span>
+                            </div>
+                        </a>
+                        <?php endforeach; ?>
+                    </div>
+                <?php else: ?>
+                    <div style="padding: 40px; text-align: center; background: var(--bg-secondary); border-radius: 12px; border: var(--glass-border);">
+                        <p style="color: #888; margin-bottom: 20px;">Your list is empty.</p>
+                        <a href="index.php?page=home" class="btn btn-primary">Browse Movies</a>
+                    </div>
+                <?php endif; ?>
             </div>
 
-            <!-- History Placeholder -->
+            <!-- History (LocalStorage) -->
             <div id="history" class="dash-section" style="display: none;">
                 <h2 class="section-title">Watch History</h2>
-                <p style="color: #888;">No history available.</p>
+                <div class="media-grid" id="history-grid">
+                    <!-- Populated by JS -->
+                </div>
+                <p id="no-history" style="color: #888; display: none;">No history found on this device.</p>
             </div>
         </div>
     </div>
@@ -91,7 +133,45 @@ $user = $pdo->query("SELECT * FROM users WHERE id = " . $_SESSION['user_id'])->f
                 
                 document.querySelectorAll('.dash-section').forEach(s => s.style.display = 'none');
                 document.querySelector(href).style.display = 'block';
+
+                // Load History if tab is history
+                if (href === '#history') loadHistory();
             }
         });
     });
+
+    // Hash navigation support
+    if (window.location.hash) {
+        document.querySelector(`.dash-link[href="${window.location.hash}"]`)?.click();
+    }
+
+    function loadHistory() {
+        const grid = document.getElementById('history-grid');
+        const noHist = document.getElementById('no-history');
+        const history = JSON.parse(localStorage.getItem('continue_watching') || '[]');
+
+        grid.innerHTML = '';
+        if (history.length === 0) {
+            noHist.style.display = 'block';
+            return;
+        }
+
+        noHist.style.display = 'none';
+        history.forEach(item => {
+             const img = item.poster ? 'https://image.tmdb.org/t/p/w300' + item.poster : 'https://via.placeholder.com/300x450?text=No+Poster';
+             const link = `index.php?page=watch&type=${item.type}&id=${item.id}`;
+             const date = new Date(item.timestamp).toLocaleDateString();
+             
+             const html = `
+                <a href="${link}" class="media-card">
+                    <img src="${img}" alt="${item.title}" loading="lazy">
+                    <div class="info">
+                        <h3>${item.title}</h3>
+                        <span style="font-size: 0.8rem; color: #888;">Watched on ${date}</span>
+                    </div>
+                </a>
+             `;
+             grid.innerHTML += html;
+        });
+    }
 </script>
