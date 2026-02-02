@@ -134,42 +134,56 @@ $schemaData = [
     </div>
 
     <!-- Continue Watching Tracker -->
+    <!-- Continue Watching & Watchlist Logic -->
     <script>
-        const TMDB_ID = <?php echo $id; ?>;
-        const CONTENT_TYPE = '<?php echo $type; ?>';
-        const TITLE = '<?php echo addslashes($title); ?>';
-        const POSTER = '<?php echo $details['poster_path']; ?>';
+        // Safely pass PHP variables to JS
+        const TMDB_ID = <?php echo json_encode((int)$id); ?>;
+        const CONTENT_TYPE = <?php echo json_encode($type); ?>;
+        const TITLE = <?php echo json_encode($title); ?>;
+        const POSTER = <?php echo json_encode($details['poster_path'] ?? ''); ?>;
         
         // 1. Save Progress (Continue Watching)
         function saveProgress() {
-            let history = JSON.parse(localStorage.getItem('continue_watching') || '[]');
-            // Remove existing entry for this item
-            history = history.filter(item => !(item.id === TMDB_ID && item.type === CONTENT_TYPE));
-            // Add to top
-            history.unshift({
-                id: TMDB_ID,
-                type: CONTENT_TYPE,
-                title: TITLE,
-                poster: POSTER,
-                timestamp: Date.now()
-            });
-            // Keep max 10
-            if (history.length > 10) history = history.slice(0, 10);
-            localStorage.setItem('continue_watching', JSON.stringify(history));
+            try {
+                let history = JSON.parse(localStorage.getItem('continue_watching') || '[]');
+                // Remove existing entry for this item to avoid duplicates
+                history = history.filter(item => !(item.id === TMDB_ID && item.type === CONTENT_TYPE));
+                // Add to top
+                history.unshift({
+                    id: TMDB_ID,
+                    type: CONTENT_TYPE,
+                    title: TITLE,
+                    poster: POSTER,
+                    timestamp: Date.now()
+                });
+                // Keep max 20
+                if (history.length > 20) history = history.slice(0, 20);
+                localStorage.setItem('continue_watching', JSON.stringify(history));
+                console.log('Progress Saved:', TITLE);
+            } catch (e) {
+                console.error('Save Progress Error:', e);
+            }
         }
-        // Save on load (simple) - ideally save on unload or interval
-        saveProgress();
+        
+        // Execute Save
+        if (TMDB_ID && TITLE) {
+            saveProgress();
+        }
 
         // 2. Watchlist Logic
         async function checkWatchlist() {
+            // Only check if user is logged in (frontend guess, backend validates)
             try {
                 const res = await fetch('api/watchlist.php', {
                     method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'check', tmdb_id: TMDB_ID, type: CONTENT_TYPE })
                 });
                 const data = await res.json();
-                updateWatchlistUI(data.in_watchlist);
-            } catch (e) console.error(e);
+                if (data.success) {
+                    updateWatchlistUI(data.in_watchlist);
+                }
+            } catch (e) { console.error('Watchlist Check Error:', e); }
         }
 
         async function toggleWatchlist() {
@@ -177,36 +191,52 @@ $schemaData = [
             const isAdded = btn.getAttribute('data-added') === 'true';
             const action = isAdded ? 'remove' : 'add';
 
+            // Optimistic UI Update
+            updateWatchlistUI(!isAdded);
+
             try {
                 const res = await fetch('api/watchlist.php', {
                     method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action, tmdb_id: TMDB_ID, type: CONTENT_TYPE })
                 });
                 const data = await res.json();
-                if (data.success) {
-                    updateWatchlistUI(action === 'add');
-                } else {
-                    if (data.message === 'Login required') window.location.href = 'index.php?page=login';
+                
+                if (!data.success) {
+                    // Revert if failed
+                    updateWatchlistUI(isAdded);
+                    if (data.message === 'Login required') {
+                        alert('Please login to use My List');
+                        window.location.href = 'index.php?page=login&redirect=' + encodeURIComponent(window.location.href);
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
                 }
-            } catch (e) console.error(e);
+            } catch (e) { 
+                console.error(e);
+                updateWatchlistUI(isAdded); // Revert
+            }
         }
 
         function updateWatchlistUI(added) {
             const btn = document.getElementById('watchlistBtn');
             const icon = document.getElementById('watchlistIcon');
+            if (!btn) return;
+
             btn.setAttribute('data-added', added);
             if (added) {
                 btn.style.background = 'var(--accent-color)';
                 btn.style.borderColor = 'var(--accent-color)';
-                icon.innerText = '✓';
+                btn.innerHTML = '<span id="watchlistIcon">✓</span> In My List';
             } else {
                 btn.style.background = 'rgba(255,255,255,0.2)';
                 btn.style.borderColor = 'rgba(255,255,255,0.1)';
-                icon.innerText = '+';
+                btn.innerHTML = '<span id="watchlistIcon">+</span> My List';
             }
         }
         
-        checkWatchlist();
+        // Initialize
+        document.addEventListener('DOMContentLoaded', checkWatchlist);
     </script>
 
     <p style="color: #ccc; max-width: 800px; margin-bottom: 40px; line-height: 1.7; font-size: 1.05rem;">
