@@ -27,7 +27,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare("INSERT INTO comments (user_id, tmdb_id, type, comment) VALUES (?, ?, ?, ?)");
         $stmt->execute([$userId, $tmdbId, $type, $comment]);
         
-        echo json_encode(['success' => true, 'username' => $_SESSION['username'] ?? 'User', 'date' => date('Y-m-d H:i')]);
+        // Fetch username if not in session
+        $username = $_SESSION['username'] ?? 'User';
+        if ($username === 'User') {
+            $stmt = $pdo->prepare("SELECT username FROM users WHERE id = ?");
+            $stmt->execute([$userId]);
+            $u = $stmt->fetch();
+            if ($u) $username = $u['username'];
+        }
+
+        echo json_encode(['success' => true, 'username' => $username, 'date' => date('Y-m-d H:i')]);
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
