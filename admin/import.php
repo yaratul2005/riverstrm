@@ -1,6 +1,6 @@
 <?php
 // admin/import.php
-session_start();
+// session_start();
 require_once '../api/config.php';
 require_once '../api/tmdb.php';
 
