@@ -128,6 +128,13 @@ $recent_content = $pdo->query("SELECT * FROM local_content ORDER BY created_at D
             <a href="diagnostics.php" class="action-btn">
                 <div>❤️</div>
                 <span>Health Check</span>
+            <a href="diagnostics.php" class="action-btn">
+                <div>❤️</div>
+                <span>Health Check</span>
+            </a>
+            <a href="sitemap_tool.php" class="action-btn">
+                <div>🗺️</div>
+                <span>Sitemap Tool</span>
             </a>
         </div>
 
