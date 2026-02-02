@@ -27,7 +27,7 @@ try {
             'page' => $page,
             'sort_by' => 'popularity.desc'
         ];
-        $data = $tmdb->get($endpoint, $params);
+        $data = $tmdb->request($endpoint, $params);
         $results = $data['results'] ?? [];
     }
 

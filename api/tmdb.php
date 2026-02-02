@@ -10,7 +10,7 @@ class TMDB {
         $this->apiKey = TMDB_API_KEY;
     }
 
-    private function request($endpoint, $params = []) {
+    public function request($endpoint, $params = []) {
         $params['api_key'] = $this->apiKey;
         $url = $this->baseUrl . $endpoint . '?' . http_build_query($params);
         

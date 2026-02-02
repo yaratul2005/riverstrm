@@ -10,7 +10,7 @@ $type = $_GET['type'] ?? 'movie';
 // Initial Load (Page 1) server-side for SEO
 $tmdb = new TMDB();
 $endpoint = ($type === 'tv') ? 'discover/tv' : 'discover/movie';
-$initialData = $tmdb->get($endpoint, ['with_genres' => $genreId, 'page' => 1]);
+$initialData = $tmdb->request($endpoint, ['with_genres' => $genreId, 'page' => 1]);
 $initialResults = $initialData['results'] ?? [];
 ?>
 <!DOCTYPE html>
@@ -28,17 +28,40 @@ $initialResults = $initialData['results'] ?? [];
     </style>
 </head>
 <body>
-    <?php include 'index.php'; // Reuse header logic via include hack or duplicate. Better: Duplicate header for now to avoid logic clash ?>
-    
-    <!-- Quick Header Fix: Since index.php has logic, let's just output the nav manually or fix header.php refactor later. 
-         For now, reusing the standard nav structure from index.php
-    -->
-    <header class="scrolled">
-        <div class="logo">Great10</div>
+    <?php
+    // Fetch Settings for Header
+    $pdo = getDB();
+    $settings = $pdo->query("SELECT * FROM settings")->fetchAll(PDO::FETCH_KEY_PAIR);
+    $siteName = $settings['site_name'] ?? 'Great10';
+    $logo = $settings['site_logo'] ?? '';
+    ?>
+    <header id="main-header" class="scrolled">
+        <a href="index.php" class="logo">
+            <?php if ($logo): ?>
+                <img src="<?php echo $logo; ?>" alt="<?php echo $siteName; ?>" style="height: 35px; vertical-align: middle;">
+            <?php else: ?>
+                <?php echo $siteName; ?>
+            <?php endif; ?>
+        </a>
         <nav>
             <a href="index.php">Home</a>
             <a href="index.php?page=search">Search</a>
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <a href="index.php?page=dashboard">My Account</a>
+                <?php if ($_SESSION['role'] === 'admin'): ?>
+                    <a href="admin/index.php" target="_blank">Admin</a>
+                <?php endif; ?>
+                <a href="api/logout.php" onclick="return confirm('Logout?');">Sign Out</a>
+            <?php else: ?>
+                <a href="index.php?page=login" class="btn btn-primary" style="padding: 5px 15px;">Login</a>
+            <?php endif; ?>
         </nav>
+        
+        <!-- Search Bar (Live) -->
+        <form action="index.php" method="GET" style="margin-left: 20px; display: inline-block;">
+            <input type="hidden" name="page" value="search">
+            <input type="text" name="query" placeholder="Search..." class="search-input" autocomplete="off">
+        </form>
     </header>
 
     <div class="category-header">
