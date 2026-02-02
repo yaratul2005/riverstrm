@@ -41,7 +41,8 @@ $categories = [
     ['id' => 18, 'name' => 'Drama'],
     ['id' => 27, 'name' => 'Horror'],
     ['id' => 10765, 'name' => 'Sci-Fi & Fantasy'],
-];
+]; 
+// Note: category.php relies on 'id' and 'name'
 ?>
 
 <!-- Hero Slider -->
