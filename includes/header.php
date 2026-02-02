@@ -25,9 +25,11 @@ $page = $_GET['page'] ?? 'home'; // for active state
     <?php echo $headCode; ?>
 </head>
 <body>
+    <!-- 
     <div id="preloader">
         <div class="loader-logo">Great10</div>
     </div>
+    -->
 
     <!-- Global Header -->
     <?php if ($page !== 'login' && strpos($_SERVER['REQUEST_URI'], 'login.php') === false): ?>
