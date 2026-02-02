@@ -17,7 +17,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($user && password_verify($password, $user['password'])) {
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['role'] = $user['role'];
-            header('Location: index.php?page=dashboard');
+            $_SESSION['username'] = $user['username'];
+            
+            // Redirection Logic
+            $redirect = $_POST['redirect'] ?? 'index.php?page=dashboard';
+            header("Location: $redirect");
             exit;
         } else {
             $error = "Invalid email or password.";
@@ -59,6 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <!-- Login Form -->
         <form method="POST" id="login-form">
             <input type="hidden" name="action" value="login">
+            <input type="hidden" name="redirect" value="<?php echo htmlspecialchars($_GET['redirect'] ?? 'index.php?page=dashboard'); ?>">
             <div class="form-group">
                 <input type="email" name="email" placeholder="Email" required>
             </div>

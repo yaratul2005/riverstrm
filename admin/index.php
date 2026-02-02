@@ -76,7 +76,8 @@ $recent_content = $pdo->query("SELECT * FROM local_content ORDER BY created_at D
     <div class="sidebar">
         <div class="brand">Great10 CMS</div>
         <a href="index.php" class="active">Dashboard</a>
-        <a href="movies.php">Users</a>
+        <a href="pages.php">Pages (CMS)</a>
+        <a href="users.php">Users</a>
         <a href="manage_content.php">Content</a>
         <a href="import.php">Curator</a>
         <a href="diagnostics.php">Diagnostics</a>

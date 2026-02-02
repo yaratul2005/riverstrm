@@ -111,6 +111,34 @@ if (!empty($localRecent)):
 </section>
 <?php endif; ?>
 
+<!-- Continue Watching (Client-Side) -->
+<section class="section" id="continue-watching-section" style="display: none;">
+    <div class="section-title">Continue Watching</div>
+    <div class="media-grid" id="continue-watching-grid"></div>
+</section>
+<script>
+    const history = JSON.parse(localStorage.getItem('continue_watching') || '[]');
+    if (history.length > 0) {
+        document.getElementById('continue-watching-section').style.display = 'block';
+        const grid = document.getElementById('continue-watching-grid');
+        
+        history.forEach(item => {
+            const img = item.poster ? 'https://image.tmdb.org/t/p/w300' + item.poster : 'https://via.placeholder.com/300x450?text=No+Poster';
+            const link = `index.php?page=watch&type=${item.type}&id=${item.id}`;
+            const html = `
+                <a href="${link}" class="media-card">
+                    <img src="${img}" alt="${item.title}" loading="lazy">
+                    <div class="info">
+                        <h3>${item.title}</h3>
+                        <span>Resume</span>
+                    </div>
+                </a>
+            `;
+            grid.innerHTML += html;
+        });
+    }
+</script>
+
 <!-- Popular Movies (API) -->
 <section class="section">
     <div class="section-title">Popular Movies</div>
