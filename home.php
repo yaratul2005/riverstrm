@@ -149,7 +149,7 @@ if (!empty($localRecent)):
                 <img src="https://image.tmdb.org/t/p/w500<?php echo $item['poster_path']; ?>" alt="<?php echo htmlspecialchars($item['title']); ?>" loading="lazy">
                 <div class="info">
                     <h3><?php echo htmlspecialchars($item['title']); ?></h3>
-                    <span>CMS API</span>
+                    <span><?php echo substr($item['release_date'] ?? '', 0, 4); ?></span>
                 </div>
             </a>
         <?php endforeach; ?>
