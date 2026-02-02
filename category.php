@@ -1,5 +1,5 @@
 <?php
-// category.php
+// category.php changed
 require_once 'api/config.php';
 require_once 'api/tmdb.php';
 
