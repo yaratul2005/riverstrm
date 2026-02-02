@@ -85,7 +85,7 @@ $categories = [
 <!-- Categories -->
 <div class="category-bar">
     <?php foreach ($categories as $cat): ?>
-        <a href="index.php?page=search&genre=<?php echo $cat['id']; ?>" class="cat-chip"><?php echo $cat['name']; ?></a>
+        <a href="category.php?id=<?php echo $cat['id']; ?>&name=<?php echo urlencode($cat['name']); ?>&type=movie" class="cat-chip"><?php echo $cat['name']; ?></a>
     <?php endforeach; ?>
 </div>
 
