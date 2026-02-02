@@ -1,20 +1,28 @@
 // assets/js/main.js
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 0. Preloader
+    // 0. Preloader (Fail-Safe)
     const preloader = document.getElementById('preloader');
     if (preloader) {
-        window.addEventListener('load', () => {
-            preloader.style.opacity = '0';
-            setTimeout(() => preloader.remove(), 500);
-        });
-        // Fallback incase load event misfires
-        setTimeout(() => {
-            if (document.body.contains(preloader)) {
+        // Function to remove preloader
+        const removePreloader = () => {
+            if (!preloader.style.opacity) {
                 preloader.style.opacity = '0';
-                setTimeout(() => preloader.remove(), 500);
+                setTimeout(() => {
+                    if (preloader.parentNode) preloader.parentNode.removeChild(preloader);
+                }, 500);
             }
-        }, 3000);
+        };
+
+        // Remove immediately if already loaded
+        if (document.readyState === 'complete') {
+            removePreloader();
+        } else {
+            // Remove on load
+            window.addEventListener('load', removePreloader);
+            // Backup: Remove after 2 seconds regardless (in case of hanging resources)
+            setTimeout(removePreloader, 2000);
+        }
     }
 
     // 1. Header Scroll Effect
