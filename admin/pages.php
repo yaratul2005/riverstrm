@@ -95,7 +95,7 @@ try {
                 </div>
                 <div>
                     <a href="../page.php?slug=<?php echo $p['slug']; ?>" target="_blank" style="margin-right: 10px; color: #4caf50;">View</a>
-                    <a href="#" onclick='openEditor(<?php echo json_encode($p); ?>)' style="margin-right: 10px; color: #2196f3;">Edit</a>
+                    <a href="#" onclick='openEditor(<?php echo htmlspecialchars(json_encode($p), ENT_QUOTES, "UTF-8"); ?>)' style="margin-right: 10px; color: #2196f3;">Edit</a>
                     <a href="?delete=<?php echo $p['id']; ?>" onclick="return confirm('Delete?')" style="color: #f44336;">Delete</a>
                 </div>
             </div>
