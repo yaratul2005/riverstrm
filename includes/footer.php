@@ -89,3 +89,4 @@ async function sendContact(e) {
     }
 }
 </script>
+<script src="assets/js/main.js"></script>
