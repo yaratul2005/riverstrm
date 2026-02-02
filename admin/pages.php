@@ -10,43 +10,48 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 $pdo = getDB();
 $msg = '';
 
-// Handle Delete
-if (isset($_GET['delete'])) {
-    $pdo->prepare("DELETE FROM custom_pages WHERE id = ?")->execute([$_GET['delete']]);
-    header('Location: pages.php');
-    exit;
-}
-
-// Handle Save
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $title = $_POST['title'];
-    $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $title)));
-    if (!empty($_POST['custom_slug'])) $slug = $_POST['custom_slug'];
-    
-    $data = [
-        $title,
-        $slug,
-        $_POST['content'],
-        $_POST['seo_title'],
-        $_POST['seo_description'],
-        isset($_POST['id']) ? $_POST['id'] : null
-    ];
-
-    if (isset($_POST['id']) && !empty($_POST['id'])) {
-        // Update
-        $stmt = $pdo->prepare("UPDATE custom_pages SET title=?, slug=?, content=?, seo_title=?, seo_description=? WHERE id=?");
-        $stmt->execute($data);
-        $msg = "Page Updated";
-    } else {
-        // Insert
-        array_pop($data); // Remove null ID
-        $stmt = $pdo->prepare("INSERT INTO custom_pages (title, slug, content, seo_title, seo_description) VALUES (?, ?, ?, ?, ?)");
-        $stmt->execute($data);
-        $msg = "Page Created";
+try {
+    // Handle Delete
+    if (isset($_GET['delete'])) {
+        $pdo->prepare("DELETE FROM custom_pages WHERE id = ?")->execute([$_GET['delete']]);
+        header('Location: pages.php');
+        exit;
     }
-}
 
-$pages = $pdo->query("SELECT * FROM custom_pages ORDER BY created_at DESC")->fetchAll();
+    // Handle Save
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $title = $_POST['title'];
+        $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $title)));
+        if (!empty($_POST['custom_slug'])) $slug = $_POST['custom_slug'];
+        
+        $data = [
+            $title,
+            $slug,
+            $_POST['content'],
+            $_POST['seo_title'],
+            $_POST['seo_description'],
+            isset($_POST['id']) ? $_POST['id'] : null
+        ];
+
+        if (isset($_POST['id']) && !empty($_POST['id'])) {
+            // Update
+            $stmt = $pdo->prepare("UPDATE custom_pages SET title=?, slug=?, content=?, seo_title=?, seo_description=? WHERE id=?");
+            $stmt->execute($data);
+            $msg = "Page Updated";
+        } else {
+            // Insert
+            array_pop($data); // Remove null ID
+            $stmt = $pdo->prepare("INSERT INTO custom_pages (title, slug, content, seo_title, seo_description) VALUES (?, ?, ?, ?, ?)");
+            $stmt->execute($data);
+            $msg = "Page Created";
+        }
+    }
+
+    $pages = $pdo->query("SELECT * FROM custom_pages ORDER BY created_at DESC")->fetchAll();
+
+} catch (PDOException $e) {
+    die("Database Error: " . $e->getMessage());
+}
 ?>
 <!DOCTYPE html>
 <html>
