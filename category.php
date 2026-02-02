@@ -9,7 +9,7 @@ $type = $_GET['type'] ?? 'movie';
 
 // Initial Load (Page 1) server-side for SEO
 $tmdb = new TMDB();
-$endpoint = ($type === 'tv') ? 'discover/tv' : 'discover/movie';
+$endpoint = ($type === 'tv') ? '/discover/tv' : '/discover/movie';
 $initialData = $tmdb->request($endpoint, ['with_genres' => $genreId, 'page' => 1]);
 $initialResults = $initialData['results'] ?? [];
 ?>

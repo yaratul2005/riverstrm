@@ -21,7 +21,7 @@ try {
         $results = $data['results'] ?? [];
     } elseif ($genre > 0) {
         // Genre Browse Mode
-        $endpoint = ($type === 'tv') ? 'discover/tv' : 'discover/movie';
+        $endpoint = ($type === 'tv') ? '/discover/tv' : '/discover/movie';
         $params = [
             'with_genres' => $genre,
             'page' => $page,
