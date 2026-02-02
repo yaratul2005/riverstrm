@@ -12,22 +12,22 @@ if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
 }
 
 // Configuration
-define('SITE_NAME', 'Great10 Streaming');
-define('SITE_URL', 'http://localhost:8000'); // Update this based on environment
-define('TMDB_API_KEY', '667911222fb9399f2d4bec7e5f4d548b');
-define('RIVESTREAM_URL', 'https://rivestream.pages.dev/embed'); // Placeholder base
+if (!defined('SITE_NAME')) define('SITE_NAME', 'Great10 Streaming');
+if (!defined('SITE_URL')) define('SITE_URL', 'http://localhost:8000'); // Update this based on environment
+if (!defined('TMDB_API_KEY')) define('TMDB_API_KEY', '667911222fb9399f2d4bec7e5f4d548b');
+if (!defined('RIVESTREAM_URL')) define('RIVESTREAM_URL', 'https://rivestream.pages.dev/embed'); // Placeholder base
 
 // Database Configuration
-define('DB_CONNECTION', 'mysql'); // Options: 'sqlite', 'mysql'
+if (!defined('DB_CONNECTION')) define('DB_CONNECTION', 'mysql'); // Options: 'sqlite', 'mysql'
 
 // MySQL Settings (only used if DB_CONNECTION is mysql)
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'great10_db');
-define('DB_USER', 'root');
-define('DB_PASS', '');
+if (!defined('DB_HOST')) define('DB_HOST', 'localhost');
+if (!defined('DB_NAME')) define('DB_NAME', 'great10_db');
+if (!defined('DB_USER')) define('DB_USER', 'root');
+if (!defined('DB_PASS')) define('DB_PASS', '');
 
 // Cron Job Secret (Change this!)
-define('CRON_SECRET', 'great10_cron_secure_key');
+if (!defined('CRON_SECRET')) define('CRON_SECRET', 'great10_cron_secure_key');
 
 // SQLite Settings
 define('DB_FILE', __DIR__ . '/../db/database.sqlite');
