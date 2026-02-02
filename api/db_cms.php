@@ -82,7 +82,7 @@ try {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
     echo "OK\n";
 
-    // 5. Users Table (Ensure it exists for Admin)
+    // 5. Users Table
     echo "Checking 'users' table... ";
     $pdo->exec("CREATE TABLE IF NOT EXISTS users (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -91,6 +91,31 @@ try {
         password VARCHAR(255) NOT NULL,
         role VARCHAR(20) DEFAULT 'user',
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    echo "OK\n";
+
+    // 6. Watchlist Table (My List)
+    echo "Checking 'watchlist' table... ";
+    $pdo->exec("CREATE TABLE IF NOT EXISTS watchlist (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        tmdb_id INT NOT NULL,
+        type VARCHAR(10) NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY unique_watch (user_id, tmdb_id, type)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    echo "OK\n";
+
+    // 7. Ratings Table
+    echo "Checking 'ratings' table... ";
+    $pdo->exec("CREATE TABLE IF NOT EXISTS ratings (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        tmdb_id INT NOT NULL,
+        type VARCHAR(10) NOT NULL,
+        rating INT NOT NULL, -- 1 to 5
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY unique_rating (user_id, tmdb_id, type)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
     echo "OK\n";
 

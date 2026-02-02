@@ -126,7 +126,88 @@ $schemaData = [
         <span><?php echo substr($date, 0, 4); ?></span>
         <span style="border: 1px solid rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; background: rgba(255,255,255,0.05);"><?php echo strtoupper($type); ?></span>
         <span style="color: var(--accent-color); font-weight: bold;">★ <?php echo number_format($rating, 1); ?></span>
+        
+        <!-- My List Button -->
+        <button id="watchlistBtn" class="btn btn-secondary" onclick="toggleWatchlist()" style="padding: 5px 15px; font-size: 0.8rem;">
+            <span id="watchlistIcon">+</span> My List
+        </button>
     </div>
+
+    <!-- Continue Watching Tracker -->
+    <script>
+        const TMDB_ID = <?php echo $id; ?>;
+        const CONTENT_TYPE = '<?php echo $type; ?>';
+        const TITLE = '<?php echo addslashes($title); ?>';
+        const POSTER = '<?php echo $details['poster_path']; ?>';
+        
+        // 1. Save Progress (Continue Watching)
+        function saveProgress() {
+            let history = JSON.parse(localStorage.getItem('continue_watching') || '[]');
+            // Remove existing entry for this item
+            history = history.filter(item => !(item.id === TMDB_ID && item.type === CONTENT_TYPE));
+            // Add to top
+            history.unshift({
+                id: TMDB_ID,
+                type: CONTENT_TYPE,
+                title: TITLE,
+                poster: POSTER,
+                timestamp: Date.now()
+            });
+            // Keep max 10
+            if (history.length > 10) history = history.slice(0, 10);
+            localStorage.setItem('continue_watching', JSON.stringify(history));
+        }
+        // Save on load (simple) - ideally save on unload or interval
+        saveProgress();
+
+        // 2. Watchlist Logic
+        async function checkWatchlist() {
+            try {
+                const res = await fetch('api/watchlist.php', {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'check', tmdb_id: TMDB_ID, type: CONTENT_TYPE })
+                });
+                const data = await res.json();
+                updateWatchlistUI(data.in_watchlist);
+            } catch (e) console.error(e);
+        }
+
+        async function toggleWatchlist() {
+            const btn = document.getElementById('watchlistBtn');
+            const isAdded = btn.getAttribute('data-added') === 'true';
+            const action = isAdded ? 'remove' : 'add';
+
+            try {
+                const res = await fetch('api/watchlist.php', {
+                    method: 'POST',
+                    body: JSON.stringify({ action, tmdb_id: TMDB_ID, type: CONTENT_TYPE })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    updateWatchlistUI(action === 'add');
+                } else {
+                    if (data.message === 'Login required') window.location.href = 'index.php?page=login';
+                }
+            } catch (e) console.error(e);
+        }
+
+        function updateWatchlistUI(added) {
+            const btn = document.getElementById('watchlistBtn');
+            const icon = document.getElementById('watchlistIcon');
+            btn.setAttribute('data-added', added);
+            if (added) {
+                btn.style.background = 'var(--accent-color)';
+                btn.style.borderColor = 'var(--accent-color)';
+                icon.innerText = '✓';
+            } else {
+                btn.style.background = 'rgba(255,255,255,0.2)';
+                btn.style.borderColor = 'rgba(255,255,255,0.1)';
+                icon.innerText = '+';
+            }
+        }
+        
+        checkWatchlist();
+    </script>
 
     <p style="color: #ccc; max-width: 800px; margin-bottom: 40px; line-height: 1.7; font-size: 1.05rem;">
         <?php echo htmlspecialchars($details['overview']); ?>

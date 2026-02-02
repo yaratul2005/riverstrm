@@ -22,6 +22,15 @@ $page = isset($_GET['page']) ? $_GET['page'] : 'home';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $siteName; ?></title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#e50914">
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+            .then(() => console.log('PWA Service Worker Registered'))
+            .catch(err => console.log('SW Fail:', err));
+        }
+    </script>
     <?php if ($favicon): ?><link rel="icon" href="<?php echo $favicon; ?>"><?php endif; ?>
     <link rel="stylesheet" href="assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">

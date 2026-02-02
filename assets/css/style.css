@@ -296,6 +296,25 @@ header.scrolled {
     margin-top: var(--nav-height);
 }
 
+@media (max-width: 768px) {
+    .player-container {
+        /* On mobile, make it taller or full width more comfortably */
+        margin-top: 60px;
+        /* Specific mobile nav height */
+        padding-bottom: 75%;
+        /* 4:3 ratio for taller feel on mobile? Or stick to 16:9 but ensure width is full */
+        /* actually 16:9 is standard, but let's ensure no overflow */
+        padding-bottom: 56.25%;
+        width: 100vw;
+        margin-left: -5%;
+        /* Counteract main padding if any */
+        margin-right: -5%;
+        left: 50%;
+        right: 50%;
+        transform: translateX(-50%);
+    }
+}
+
 .player-container iframe {
     position: absolute;
     top: 0;
