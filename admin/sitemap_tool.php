@@ -13,18 +13,40 @@ $batchSize = 50;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $batch = (int)$_POST['batch'];
     if ($batch < 1) $batch = 1;
+    $source = $_POST['source'] ?? 'db';
     
-    $offset = ($batch - 1) * $batchSize;
     $filename = "../sitemap{$batch}.xml";
     $baseUrl = SITE_URL;
-
-    // Fetch Content
-    // We only fetch 'local_content' (Movies/Series) for now as requested
-    $stmt = $pdo->prepare("SELECT * FROM local_content WHERE is_active = 1 ORDER BY id ASC LIMIT ? OFFSET ?");
-    $stmt->bindValue(1, $batchSize, PDO::PARAM_INT);
-    $stmt->bindValue(2, $offset, PDO::PARAM_INT);
-    $stmt->execute();
-    $items = $stmt->fetchAll();
+    if ($source === 'db') {
+        // Fetch Content from Local DB (Limit/Offset)
+        $offset = ($batch - 1) * $batchSize;
+        $stmt = $pdo->prepare("SELECT * FROM local_content WHERE is_active = 1 ORDER BY id ASC LIMIT ? OFFSET ?");
+        $stmt->bindValue(1, $batchSize, PDO::PARAM_INT);
+        $stmt->bindValue(2, $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } else {
+        // Fetch Content from TMDB API (Page = Batch)
+        require_once '../api/tmdb.php';
+        $tmdb = new TMDB();
+        
+        // TMDB pages are 1-indexed, so Batch 1 = Page 1
+        $data = $tmdb->getPopular('movie', $batch); // Fetch Movies
+        $items = $data['results'] ?? [];
+        
+        // Standardize structure
+        $tempItems = [];
+        foreach ($items as $m) {
+            $tempItems[] = [
+                'tmdb_id' => $m['id'],
+                'type'    => 'movie',
+                'updated_at' => $m['release_date'] ?? date('Y-m-d')
+            ];
+        }
+        $items = $tempItems;
+        
+        // Also fetch Series? Maybe later. Just Movies for now as requested "draw movies".
+    }
 
     if (count($items) > 0) {
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
@@ -44,14 +66,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $xml .= '</urlset>';
 
         if (file_put_contents($filename, $xml)) {
-            $msg = "✅ Generated <strong>sitemap{$batch}.xml</strong> with " . count($items) . " links.";
+            $sourceStr = ($source === 'tmdb') ? 'TMDB API (Popular)' : 'Local Database';
+            $msg = "✅ Generated <strong>sitemap{$batch}.xml</strong> from {$sourceStr} with " . count($items) . " links.";
         } else {
             $msg = "❌ Error writing file. Check permissions.";
         }
     } else {
-        $msg = "⚠️ No content found for Batch {$batch} (Offset {$offset}).";
+        $msg = "⚠️ No content found for Batch {$batch}.";
     }
 }
+    
+    // Count total items
+    $total = $pdo->query("SELECT COUNT(*) FROM local_content WHERE is_active = 1")->fetchColumn();
+    $maxBatches = ceil($total / $batchSize);
 ?>
 <!DOCTYPE html>
 <html>
@@ -80,10 +107,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
         <?php endif; ?>
 
+        <div style="margin-bottom: 20px; font-size: 0.9rem; color: #aaa; background: #222; padding: 10px; border-radius: 6px;">
+            Total Curated Content: <strong><?php echo $total; ?></strong><br>
+            Max Batch Number: <strong><?php echo $maxBatches; ?></strong>
+        </div>
+
         <form method="POST">
-            <label style="display: block; color: #ccc; margin-bottom: 5px;">Batch Number</label>
-            <input type="number" name="batch" value="<?php echo isset($_POST['batch']) ? $_POST['batch'] + 1 : 1; ?>" min="1" required>
-            <div style="font-size: 0.8rem; color: #666;">(e.g., 1 = Links 1-50, 2 = Links 51-100)</div>
+            <div style="margin-bottom: 20px; text-align: left;">
+                <label style="color: #ccc; display: block; margin-bottom: 10px;">Source:</label>
+                <label style="display: block; margin-bottom: 5px; color: #888; cursor: pointer;">
+                    <input type="radio" name="source" value="db" checked> Local Database (Curated)
+                </label>
+                <label style="display: block; margin-bottom: 5px; color: #888; cursor: pointer;">
+                    <input type="radio" name="source" value="tmdb"> TMDB API (Popular Movies)
+                </label>
+            </div>
+
+            <label style="display: block; color: #ccc; margin-bottom: 5px;">Batch Number / Page Number</label>
+            <input type="number" name="batch" value="<?php echo isset($_POST['batch']) ? $_POST['batch'] + 1 : 1; ?>" min="1" max="500" required>
+            <div style="font-size: 0.8rem; color: #666;">(For TMDB: Batch 1 = Popular Page 1)</div>
             
             <button type="submit" class="btn-gen">Generate Static Sitemap</button>
         </form>

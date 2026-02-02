@@ -27,33 +27,7 @@ $initialResults = $initialData['results'] ?? [];
         .loading-spinner { text-align: center; padding: 40px; display: none; }
     </style>
 </head>
-<body>
-    <?php
-    // Fetch Settings for Header
-    $pdo = getDB();
-    $settings = $pdo->query("SELECT * FROM settings")->fetchAll(PDO::FETCH_KEY_PAIR);
-    $siteName = $settings['site_name'] ?? 'Great10';
-    $logo = $settings['site_logo'] ?? '';
-    ?>
-    <header id="main-header" class="scrolled">
-        <a href="index.php" class="logo">
-            <?php if ($logo): ?>
-                <img src="<?php echo $logo; ?>" alt="<?php echo $siteName; ?>" style="height: 35px; vertical-align: middle;">
-            <?php else: ?>
-                Great10
-            <?php endif; ?>
-        </a>
-        <nav class="nav-links">
-            <a href="index.php?page=home">Home</a>
-            <a href="index.php?page=search">Search</a>
-            <?php if (isset($_SESSION['user_id'])): ?>
-                <a href="index.php?page=dashboard">My List</a>
-                <a href="api/logout.php">Logout</a>
-            <?php else: ?>
-                <a href="index.php?page=login" class="btn btn-primary" style="padding: 5px 15px; font-size: 0.8rem;">Login</a>
-            <?php endif; ?>
-        </nav>
-    </header>
+    <?php include 'includes/header.php'; ?>
 
     <div class="category-header">
         <h1><?php echo htmlspecialchars($genreName); ?></h1>
@@ -133,5 +107,8 @@ $initialResults = $initialData['results'] ?? [];
             spinner.style.display = 'none';
         }
     </script>
+    <?php include 'includes/footer.php'; ?>
+    
+    <script src="assets/js/main.js"></script> <!-- Ensure main.js is loaded -->
 </body>
 </html>
