@@ -26,6 +26,9 @@ define('DB_NAME', 'great10_db');
 define('DB_USER', 'root');
 define('DB_PASS', '');
 
+// Cron Job Secret (Change this!)
+define('CRON_SECRET', 'great10_cron_secure_key');
+
 // SQLite Settings
 define('DB_FILE', __DIR__ . '/../db/database.sqlite');
 
